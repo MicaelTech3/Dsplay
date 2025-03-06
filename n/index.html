@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de TVs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #17837a;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .floors-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .floor-button {
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .floor-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tv-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .tv-square {
+            background-color: #174283;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .tv-square:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tv-square span {
+            font-size: 18px;
+        }
+
+        .fullscreen-media {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .fullscreen-media video,
+        .fullscreen-media img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .close-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Controle de TVs</h1>
+        <div class="floors-buttons">
+            <button class="floor-button" data-floor="floor-3">3º Andar</button>
+            <button class="floor-button" data-floor="floor-xfood">XFood</button>
+            <button class="floor-button" data-floor="floor-g1">G1</button>
+            <button class="floor-button" data-floor="floor-4">4º Andar</button>
+        </div>
+
+        <div class="tv-grid" id="tv-grid">
+            <!-- As TVs serão carregadas aqui dinamicamente -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // URLs pré-definidas para cada TV de cada andar
+            const tvUrls = {
+                "floor-3": [
+                    "https://res.cloudinary.com/dzd2bpbyf/video/upload/v1740946530/Vpistol_qbqwmn.mp4",
+                    "https://exemplo.com/video2-andar3.mp4"
+                ],
+                "floor-xfood": [
+                    "https://res.cloudinary.com/dzd2bpbyf/video/upload/v1740946530/Vpistol_qbqwmn.mp4"
+                ],
+                "floor-g1": [
+                    "https://exemplo.com/video1-g1.mp4"
+                ],
+                "floor-4": [
+                    "https://exemplo.com/video1-andar4.mp4"
+                ]
+            };
+
+            const tvGrid = document.getElementById("tv-grid");
+
+            // Função para carregar as TVs de um andar
+            function loadTVs(floor) {
+                tvGrid.innerHTML = ""; // Limpa o grid atual
+
+                if (tvUrls[floor]) {
+                    tvUrls[floor].forEach((url, index) => {
+                        const tvSquare = document.createElement("div");
+                        tvSquare.classList.add("tv-square");
+                        tvSquare.innerHTML = `<span>TV ${index + 1}</span>`;
+
+                        tvSquare.addEventListener("click", function () {
+                            openMedia(url);
+                        });
+
+                        tvGrid.appendChild(tvSquare);
+                    });
+                }
+            }
+
+            // Função para abrir o conteúdo em tela cheia
+            function openMedia(url) {
+                const mediaContainer = document.createElement("div");
+                mediaContainer.classList.add("fullscreen-media");
+
+                const mediaElement = url.match(/\.(png|jpg|jpeg)$/i) ? document.createElement("img") : document.createElement("video");
+                mediaElement.src = url;
+
+                if (mediaElement.tagName === "VIDEO") {
+                    mediaElement.autoplay = true;
+                    mediaElement.loop = true;
+                    mediaElement.muted = true;
+                    mediaElement.controls = true; // Controles de vídeo
+                }
+
+                const closeButton = document.createElement("button");
+                closeButton.classList.add("close-button");
+                closeButton.textContent = "Fechar";
+                closeButton.addEventListener("click", function () {
+                    document.body.removeChild(mediaContainer);
+                });
+
+                mediaContainer.appendChild(mediaElement);
+                mediaContainer.appendChild(closeButton);
+                document.body.appendChild(mediaContainer);
+            }
+
+            // Carrega as TVs do 3º andar por padrão
+            loadTVs("floor-3");
+
+            // Alterna entre os andares
+            document.querySelectorAll(".floor-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    loadTVs(this.dataset.floor);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

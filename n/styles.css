@@ -1,0 +1,142 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Coluna de andares */
+.floors-column {
+  width: 200px;
+  background-color: #17837a;
+  padding: 20px;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+.floors-column h2 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+.floor-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+.floor-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Conteúdo das TVs */
+.tv-content {
+  flex-grow: 1;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.global-controls {
+  margin-bottom: 20px;
+}
+
+.global-controls button {
+  padding: 10px 20px;
+  background-color: #17837a;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: opacity 0.3s ease;
+}
+
+.global-controls button:hover {
+  opacity: 0.8;
+}
+
+.floor-content {
+  display: none;
+}
+
+.tv-control {
+  margin-bottom: 20px;
+}
+
+.tv-control h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.video-player {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+}
+
+.video-select {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.tv-control button {
+  padding: 5px 10px;
+  margin-right: 5px;
+  background-color: #17837a;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.3s ease;
+  border-radius: 4px;
+}
+
+.tv-control button.pause {
+  background-color: #dc3545;
+}
+
+.tv-control button.remove-video {
+  background-color: #ffc107;
+}
+
+.tv-control button:hover {
+  opacity: 0.8;
+}
+
+.tv-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.add-video {
+  background-color: #007bff;
+}
