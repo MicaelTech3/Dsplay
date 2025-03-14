@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de TVs</title>
+    <title>Exceed TVs</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -94,22 +94,150 @@
             position: absolute;
             top: 20px;
             right: 20px;
+            background-color: #174283;
+            color: #f5f5f5;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .close-button.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .close-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .refresh-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
             background-color: rgba(255, 255, 255, 0.1);
             color: #fff;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
             border-radius: 4px;
+            font-size: 16px;
         }
 
-        .close-button:hover {
+        .refresh-button:hover {
             background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .download-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .download-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        /* Modal Personalizado */
+        .custom-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #174283;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            display: none;
+        }
+
+        .custom-modal p {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .custom-modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .custom-modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .custom-modal-buttons button.ok {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .custom-modal-buttons button.cancel {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
         }
     </style>
 </head>
 <body>
+    <!-- Botão de Atualizar -->
+    <button class="refresh-button" id="refresh-button">Atualizar</button>
+
+    <!-- Botão de Baixar para Offline -->
+    <button class="download-button" id="download-button">Baixar para Offline</button>
+
+    <!-- Indicador de Carregamento -->
+    <div id="loading-indicator">
+        Baixando recursos... <progress value="0" max="100"></progress>
+    </div>
+
+    <!-- Modal Personalizado -->
+    <div class="overlay" id="overlay"></div>
+    <div class="custom-modal" id="custom-modal">
+        <p>Deseja selecionar um arquivo local?</p>
+        <div class="custom-modal-buttons">
+            <button class="ok" id="modal-ok">sim</button>
+            <button class="cancel" id="modal-cancel">não</button>
+        </div>
+    </div>
+
     <div class="container">
-        <h1>Controle de TVs</h1>
+        <h1>Exceed TVs</h1>
         <div class="floors-buttons">
             <button class="floor-button" data-floor="floor-3">3º Andar</button>
             <button class="floor-button" data-floor="floor-xfood">XFood</button>
@@ -123,82 +251,194 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // URLs pré-definidas para cada TV de cada andar
-            const tvUrls = {
-                "floor-3": [
-                    "https://res.cloudinary.com/dzd2bpbyf/video/upload/v1740946530/Vpistol_qbqwmn.mp4",
-                    "https://exemplo.com/video2-andar3.mp4"
-                ],
-                "floor-xfood": [
-                    "https://res.cloudinary.com/dzd2bpbyf/video/upload/v1740946530/Vpistol_qbqwmn.mp4"
-                ],
-                "floor-g1": [
-                    "https://exemplo.com/video1-g1.mp4"
-                ],
-                "floor-4": [
-                    "https://exemplo.com/video1-andar4.mp4"
-                ]
-            };
+        // URLs pré-definidas para cada TV de cada andar
+        const tvUrls = {
+            "floor-3": [
+                "https://res.cloudinary.com/dzd2bpbyf/video/upload/v1740946530/Vpistol_qbqwmn.mp4",
+                "https://res.cloudinary.com/du7dr4uvk/video/upload/v1741554190/3ANDAR/TV2%20Beat%20Saber-%20dan%C3%A7a.mp4",
+                "https://res.cloudinary.com/du7dr4uvk/video/upload/v1741554196/3ANDAR/TV3%20Creed.mp4",
+                "https://res.cloudinary.com/du7dr4uvk/video/upload/v1741554195/3ANDAR/TV4%20fila%20creed.mp4",
+                "https://res.cloudinary.com/du7dr4uvk/video/upload/v1741554191/3ANDAR/TV5%20spatial%20ops.mp4",
+                "https://res.cloudinary.com/du7dr4uvk/video/upload/v1741554557/3ANDAR/TV6%20Blaston.mp4",
+                "https://res.cloudinary.com/du7dr4uvk/video/upload/v1741554188/3ANDAR/TV7%20Tiro%20B-S-H%20%28FILA%29.mp4",
+                "https://res.cloudinary.com/du7dr4uvk/video/upload/v1741554188/3ANDAR/TV8%20Hyper%20dash.mp4"
+            ],
+            "floor-xfood": [
+                "https://res.cloudinary.com/dzd2bpbyf/video/upload/v1740946530/Vpistol_qbqwmn.mp4"
+            ],
+            "floor-g1": [
+                "https://exemplo.com/video1-g1.mp4"
+            ],
+            "floor-4": [
+                "https://res.cloudinary.com/du7dr4uvk/video/upload/v1741959884/v%C3%ADdeo_spatial_ops_e_home_invasion_1080_x_1920_px_online-video-cutter.com_1_eh52dq.mp4"
+            ]
+        };
 
-            const tvGrid = document.getElementById("tv-grid");
+        const tvGrid = document.getElementById("tv-grid");
+        const customModal = document.getElementById("custom-modal");
+        const overlay = document.getElementById("overlay");
+        const modalOk = document.getElementById("modal-ok");
+        const modalCancel = document.getElementById("modal-cancel");
 
-            // Função para carregar as TVs de um andar
-            function loadTVs(floor) {
-                tvGrid.innerHTML = ""; // Limpa o grid atual
+        let currentUrl = "";
 
-                if (tvUrls[floor]) {
-                    tvUrls[floor].forEach((url, index) => {
-                        const tvSquare = document.createElement("div");
-                        tvSquare.classList.add("tv-square");
-                        tvSquare.innerHTML = `<span>TV ${index + 1}</span>`;
+        // Função para carregar as TVs de um andar
+        function loadTVs(floor) {
+            tvGrid.innerHTML = ""; // Limpa o grid atual
 
-                        tvSquare.addEventListener("click", function () {
-                            openMedia(url);
-                        });
+            if (tvUrls[floor]) {
+                tvUrls[floor].forEach((url, index) => {
+                    const tvSquare = document.createElement("div");
+                    tvSquare.classList.add("tv-square");
+                    tvSquare.innerHTML = `<span>TV ${index + 1}</span>`;
 
-                        tvGrid.appendChild(tvSquare);
+                    tvSquare.addEventListener("click", function () {
+                        currentUrl = url;
+                        showModal();
                     });
+
+                    tvGrid.appendChild(tvSquare);
+                });
+            }
+        }
+
+        // Função para exibir o modal personalizado
+        function showModal() {
+            customModal.style.display = "block";
+            overlay.style.display = "block";
+        }
+
+        // Função para ocultar o modal personalizado
+        function hideModal() {
+            customModal.style.display = "none";
+            overlay.style.display = "none";
+        }
+
+        // Função para abrir o conteúdo em tela cheia
+        function openMedia(url) {
+            const fileInput = document.createElement("input");
+            fileInput.type = "file";
+            fileInput.accept = "video/*, image/*";
+            fileInput.onchange = function (event) {
+                const file = event.target.files[0];
+                if (file) {
+                    if (file.type.startsWith("video/") || file.type.startsWith("image/")) {
+                        const mediaUrl = URL.createObjectURL(file);
+                        displayMedia(mediaUrl, file.type);
+                    } else {
+                        alert("Tipo de arquivo não suportado! Use vídeos (MP4, WebM, OGG) ou imagens (PNG, JPG, JPEG, GIF).");
+                    }
                 }
+            };
+            fileInput.click();
+        }
+
+        // Função para exibir a mídia em tela cheia
+        function displayMedia(url, mimeType) {
+            const mediaContainer = document.createElement("div");
+            mediaContainer.classList.add("fullscreen-media");
+
+            let mediaElement;
+            if (mimeType.startsWith("video/")) {
+                mediaElement = document.createElement("video");
+                mediaElement.autoplay = true;
+                mediaElement.loop = true;
+                mediaElement.muted = true;
+                mediaElement.controls = true;
+            } else if (mimeType.startsWith("image/")) {
+                mediaElement = document.createElement("img");
+            } else {
+                alert("Tipo de mídia não suportado! Use vídeos (MP4, WebM, OGG) ou imagens (PNG, JPG, JPEG, GIF).");
+                return;
             }
 
-            // Função para abrir o conteúdo em tela cheia
-            function openMedia(url) {
-                const mediaContainer = document.createElement("div");
-                mediaContainer.classList.add("fullscreen-media");
+            mediaElement.src = url;
+            mediaContainer.appendChild(mediaElement);
 
-                const mediaElement = url.match(/\.(png|jpg|jpeg)$/i) ? document.createElement("img") : document.createElement("video");
-                mediaElement.src = url;
+            const closeButton = document.createElement("button");
+            closeButton.classList.add("close-button");
+            closeButton.textContent = "Voltar";
+            closeButton.addEventListener("click", function () {
+                document.body.removeChild(mediaContainer);
+            });
 
-                if (mediaElement.tagName === "VIDEO") {
-                    mediaElement.autoplay = true;
-                    mediaElement.loop = true;
-                    mediaElement.muted = true;
-                    mediaElement.controls = true; // Controles de vídeo
-                }
+            mediaContainer.appendChild(closeButton);
+            document.body.appendChild(mediaContainer);
 
-                const closeButton = document.createElement("button");
-                closeButton.classList.add("close-button");
-                closeButton.textContent = "Fechar";
-                closeButton.addEventListener("click", function () {
-                    document.body.removeChild(mediaContainer);
-                });
+            // Esconde o botão "Fechar" após 3 segundos
+            setTimeout(() => {
+                closeButton.classList.add("hidden");
+            }, 7000);
 
-                mediaContainer.appendChild(mediaElement);
-                mediaContainer.appendChild(closeButton);
-                document.body.appendChild(mediaContainer);
-            }
+            // Mostra o botão "Fechar" ao clicar em qualquer lugar
+            mediaContainer.addEventListener("click", function () {
+                closeButton.classList.remove("hidden");
+                setTimeout(() => {
+                    closeButton.classList.add("hidden");
+                }, 3000);
+            });
+        }
 
-            // Carrega as TVs do 3º andar por padrão
-            loadTVs("floor-3");
+        // Eventos do modal
+        modalOk.addEventListener("click", function () {
+            hideModal();
+            openMedia(currentUrl);
+        });
 
-            // Alterna entre os andares
-            document.querySelectorAll(".floor-button").forEach(button => {
-                button.addEventListener("click", function () {
-                    loadTVs(this.dataset.floor);
-                });
+        modalCancel.addEventListener("click", function () {
+            hideModal();
+            displayMedia(currentUrl, "video/mp4"); // Assume que o link é um vídeo MP4
+        });
+
+        // Carrega as TVs do 3º andar por padrão
+        loadTVs("floor-3");
+
+        // Alterna entre os andares
+        document.querySelectorAll(".floor-button").forEach(button => {
+            button.addEventListener("click", function () {
+                loadTVs(this.dataset.floor);
             });
         });
+
+        // Botão de Atualizar
+        document.getElementById("refresh-button").addEventListener("click", function () {
+            location.reload(); // Recarrega a página
+        });
+
+        // Botão de Baixar para Offline
+        document.getElementById("download-button").addEventListener("click", async function () {
+            const loadingIndicator = document.getElementById("loading-indicator");
+            const progressBar = loadingIndicator.querySelector("progress");
+
+            loadingIndicator.style.display = "block";
+            progressBar.value = 0;
+
+            if ('serviceWorker' in navigator && 'caches' in window) {
+                const cache = await caches.open('dsplay-cache-v1');
+                const assets = Object.values(tvUrls).flat();
+
+                for (let i = 0; i < assets.length; i++) {
+                    try {
+                        await cache.add(assets[i]);
+                        progressBar.value = ((i + 1) / assets.length) * 100;
+                    } catch (err) {
+                        console.error(`Erro ao baixar ${assets[i]}:`, err);
+                    }
+                }
+
+                loadingIndicator.style.display = "none";
+                alert('Recursos baixados com sucesso! Agora você pode acessar offline.');
+            } else {
+                alert('Seu navegador não suporta cache offline.');
+            }
+        });
+
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(() => console.log('Service Worker registrado com sucesso!'))
+                .catch(err => console.error('Erro ao registrar Service Worker:', err));
+        }
     </script>
 </body>
 </html>
